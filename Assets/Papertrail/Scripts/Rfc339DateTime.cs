@@ -8,24 +8,16 @@ namespace Papertrail
     /// </summary>
     public static class Rfc3339DateTime
     {
-        //============================================================
-        //  Private members
-        //============================================================
-        #region Private Members
         /// <summary>
         /// Private member to hold array of formats that RFC 3339 date-time representations conform to.
         /// </summary>
         private static string[] formats = new string[0];
+
         /// <summary>
         /// Private member to hold the DateTime format string for representing a DateTime in the RFC 3339 format.
         /// </summary>
         private const string format = "yyyy-MM-dd'T'HH:mm:ss.fffK";
-        #endregion
 
-        //============================================================
-        //  Public Properties
-        //============================================================
-        #region Rfc3339DateTimeFormat
         /// <summary>
         /// Gets the custom format specifier that may be used to represent a <see cref="DateTime"/> in the RFC 3339 format.
         /// </summary>
@@ -45,9 +37,7 @@ namespace Papertrail
                 return format;
             }
         }
-        #endregion
 
-        #region Rfc3339DateTimePatterns
         /// <summary>
         /// Gets an array of the expected formats for RFC 3339 date-time string representations.
         /// </summary>
@@ -86,12 +76,7 @@ namespace Papertrail
                 }
             }
         }
-        #endregion
 
-        //============================================================
-        //  Public Methods
-        //============================================================
-        #region Parse(string s)
         /// <summary>
         /// Converts the specified string representation of a date and time to its <see cref="DateTime"/> equivalent.
         /// </summary>
@@ -122,9 +107,7 @@ namespace Papertrail
                 throw new FormatException(String.Format(null, "{0} is not a valid RFC 3339 string representation of a date and time.", s));
             }
         }
-        #endregion
 
-        #region ToString(DateTime utcDateTime)
         /// <summary>
         /// Converts the value of the specified <see cref="DateTime"/> object to its equivalent string representation.
         /// </summary>
@@ -153,9 +136,7 @@ namespace Papertrail
 
             return utcDateTime.ToString(Rfc3339DateTime.Rfc3339DateTimeFormat, DateTimeFormatInfo.InvariantInfo);
         }
-        #endregion
 
-        #region TryParse(string s, out DateTime result)
         /// <summary>
         /// Converts the specified string representation of a date and time to its <see cref="DateTime"/> equivalent.
         /// </summary>
@@ -192,6 +173,5 @@ namespace Papertrail
 
             return wasConverted;
         }
-        #endregion
     }
 }
