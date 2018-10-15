@@ -13,6 +13,9 @@ namespace Papertrail
         // Remote server port.
         [Header("Remote server port")]
         public int port = 514;
+        // Default facility tag to use for logs.
+        [Header("System name to appear in the Dashboard")]
+        public string systemName = string.Empty;
         // Minimum severity of logs to send to the server.
         [Header("Minimum severity of logs to send to the server")]
         public Severity minimumLoggingLevel = Severity.Debug;
@@ -26,6 +29,14 @@ namespace Papertrail
         public static PapertrailSettings LoadSettings()
         {
             return Resources.Load<PapertrailSettings>(s_settingsPath);
+        }
+
+        /// <summary>
+        /// Ensures all settings are correct
+        /// </summary>
+        private void OnValidate()
+        {
+            systemName = systemName.Replace('.', '-');
         }
 
 #if UNITY_EDITOR
@@ -62,6 +73,11 @@ namespace Papertrail
                 }
                 settings = CreateInstance<PapertrailSettings>();
                 UnityEditor.AssetDatabase.CreateAsset(settings, createPath);
+            }
+            if (string.IsNullOrEmpty(settings.systemName))
+            {
+                settings.systemName = Application.identifier;
+                UnityEditor.EditorUtility.SetDirty(settings);
             }
         }
 

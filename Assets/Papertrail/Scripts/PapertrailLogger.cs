@@ -300,7 +300,10 @@ namespace Papertrail
                 m_stringBuilder.Append(Rfc3339DateTime.ToString(DateTime.UtcNow));
                 m_stringBuilder.Append(' ');
                 // The application that is logging
-                m_stringBuilder.Append("unity-client");
+                string systemName = m_settings.systemName;
+                if (string.IsNullOrEmpty(systemName))
+                    systemName = "unity-client";
+                m_stringBuilder.Append(systemName);
                 m_stringBuilder.Append(' ');
                 // Process name that is logging
                 m_stringBuilder.Append(m_processName);
