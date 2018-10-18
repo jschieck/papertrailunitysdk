@@ -19,7 +19,7 @@ To get started, [sign up for a free account](https://papertrailapp.com/signup?pl
 
 ![Add System](https://github.com/jschieck/papertrailunitysdk/blob/docs/assets/img/addsystem.png?raw=true)
 
-6. After entering the Add Systems section, locate the hostname and port at the top of the page, directly under Setup Logging and copy this information into the hostname and port fields of the PapertrailSettings asset.
+6. After entering the Add Systems section, locate the hostname and port at the top of the page, directly under Setup Logging.
 
 ![Hostname](https://github.com/jschieck/papertrailunitysdk/blob/docs/assets/img/hostname.png?raw=true)
 
