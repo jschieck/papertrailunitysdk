@@ -5,7 +5,7 @@ The Papertrail Unity SDK allows seamless integration between Unity’s logging s
 To get started, [sign up for a free account](https://papertrailapp.com/signup?plan=free) to get access to an unlimited number of apps, and 100MB of logging a month.
 
 # SDK Setup
-1. Download the [latest release](https://github.com/jschieck/papertrailunitysdk/blob/develop/release/papertrail-sdk.unitypackage) of the SDK.
+1. Download the [latest release](https://github.com/jschieck/papertrailunitysdk/raw/develop/release/papertrail-sdk.unitypackage) of the SDK.
 1. Import the Papertrail SDK into the project by navigating to Assets/Import Package/Custom Package… and select the downloaded .unitypackage file.
 
 ![Import Package](https://github.com/jschieck/papertrailunitysdk/blob/docs/assets/img/import_package.png?raw=true)
