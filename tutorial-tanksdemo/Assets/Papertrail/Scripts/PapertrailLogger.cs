@@ -14,6 +14,10 @@ namespace Papertrail
     public class PapertrailLogger : MonoBehaviour
     {
         // Format for messages that use a tag
+        private const string s_taggedNoStack = "tag=[{0}] message=[{1}]";
+        // Format for messages that use a tag
+        private const string s_logFormatNoStack = "message=[{0}]";
+        // Format for messages that use a tag
         private const string s_taggedLogFormat = "tag=[{0}] message=[{1}] stacktrace=[{2}]";
         // Format for messsage without a tag
         private const string s_logFormat = "message=[{0}] stacktrace=[{1}]";
@@ -195,15 +199,31 @@ namespace Papertrail
             }
             try
             {
+                if (severity > m_settings.minimumLoggingLevel)
+                    return;
                 if (!string.IsNullOrEmpty(m_tag))
                 {
                     // Log the message with the set tag
-                    Log(severity, string.Format(s_taggedLogFormat, m_tag, condition, stackTrace));
+                    if (m_settings.logStackTrace)
+                    {
+                        Log(severity, string.Format(s_taggedLogFormat, m_tag, condition, stackTrace));
+                    }
+                    else
+                    {
+                        Log(severity, string.Format(s_taggedNoStack, m_tag, condition));
+                    }
                 }
                 else
                 {
                     // Log the message without a tag
-                    Log(severity, string.Format(s_logFormat, condition, stackTrace));
+                    if (m_settings.logStackTrace)
+                    {
+                        Log(severity, string.Format(s_logFormat, condition, stackTrace));
+                    }
+                    else
+                    {
+                        Log(severity, string.Format(s_logFormatNoStack, condition));
+                    }
                 }
             }
             catch (Exception ex)
@@ -311,8 +331,15 @@ namespace Papertrail
                 // Platform the client is running on
                 m_stringBuilder.Append(m_platform);
                 m_stringBuilder.Append(' ');
-                // The log message
-                m_stringBuilder.Append(string.Format(s_ipPrefixFormat, m_localIp, msg));
+                // The log message with the client IP
+                if (m_settings.logClientIPAdress)
+                {
+                    m_stringBuilder.Append(string.Format(s_ipPrefixFormat, m_localIp, msg));
+                }
+                else
+                {
+                    m_stringBuilder.Append(msg);
+                }
                 message = m_stringBuilder.ToString();
             }
             // Send the completed message

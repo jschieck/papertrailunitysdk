@@ -16,3 +16,5 @@ MonoBehaviour:
   systemName: com-papertrail-unitysdk
   minimumLoggingLevel: 7
   facility: 23
+  logStackTrace: 1
+  logClientIPAdress: 1

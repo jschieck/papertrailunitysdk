@@ -22,6 +22,12 @@ namespace Papertrail
         // Default facility tag to use for logs.
         [Header("Default facility tag to use for logs")]
         public Facility facility = Facility.local7;
+        // Minimum severity of logs to send to the server.
+        [Header("Append the log stack trace")]
+        public bool logStackTrace = true;
+        // Minimum severity of logs to send to the server.
+        [Header("Append the client's IP address")]
+        public bool logClientIPAdress = true;
 
         /// <summary>
         /// Loads the default settings file
