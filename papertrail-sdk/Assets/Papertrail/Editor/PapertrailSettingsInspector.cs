@@ -8,7 +8,7 @@ namespace Papertrail
     {
         private const string s_dashboardUrl = "https://papertrailapp.com/dashboard";
         private Texture2D m_logo;
-        private GUIStyle urlStyle;
+        private GUIStyle m_urlStyle;
 
         private void OnEnable()
         {
@@ -16,17 +16,17 @@ namespace Papertrail
         }
         public override void OnInspectorGUI()
         {
-            if (urlStyle == null)
+            if (m_urlStyle == null)
             {
-                urlStyle = new GUIStyle(GUI.skin.button);
-                urlStyle.fontStyle = FontStyle.Bold;
-                urlStyle.fontSize = 15;
+                m_urlStyle = new GUIStyle(GUI.skin.button);
+                m_urlStyle.fontStyle = FontStyle.Bold;
+                m_urlStyle.fontSize = 15;
             }
             if (m_logo != null)
             {
                 GUILayout.Label(new GUIContent(m_logo));
             }
-            if (GUILayout.Button("Open Dashboard", urlStyle))
+            if (GUILayout.Button("Open Dashboard", m_urlStyle))
             {
                 Application.OpenURL(s_dashboardUrl);
             }
