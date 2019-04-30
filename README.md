@@ -1,6 +1,8 @@
 # Papertrail Unity SDK
 The Papertrail Unity SDK allows seamless integration between Unity’s logging system and Papertrail. All logs that already exist in a Unity application are automatically forwarded to Papertrail for recording and viewing them to help track down bugs, monitor player activity, or provide support to users.
 
+View the blog post: https://blog.papertrailapp.com/improve-live-ops-for-games-using-papertrail/
+
 # Papertrail Account Setup
 To get started, [sign up for a free account](https://papertrailapp.com/signup?plan=free) to get access to an unlimited number of apps, and 100MB of logging a month.
 
