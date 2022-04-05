@@ -19,6 +19,8 @@ To get started, [sign up for a free account](https://papertrailapp.com/signup?pl
     - *`<hostname>` and `<port>` are required, but if you don't set a `<name>`, one will be provided as '7dtd-server'... but it might make more sense to set your name to match your server's display name.*
 6. Once successfully set, go to the [Papertrail Events Page](https://my.papertrailapp.com/events) and enjoy your logs :)
 
+Note: for additional options, run `help papertrail`
+
 ## Credits
 
 This modlet is based off [jschieck](https://github.com/jschieck)'s [Papertrail Unity SDK](https://github.com/jschieck/papertrailunitysdk).
