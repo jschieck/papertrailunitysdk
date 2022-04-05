@@ -15,7 +15,7 @@ namespace PapertrailFor7DTD.SDK {
         private const string LOG_CLIENT_IP_ADDRESS_KEY = "log-client-ip-address";
 
         // Resources path where the logger settings are stored.
-        private static readonly string s_settingsPath = Path.Combine(GameIO.GetSaveGameDir(), "papertrail.xml");
+        public static string SettingsPath { get; private set; } = Path.Combine(GameIO.GetSaveGameDir(), "papertrail.xml");
 
         // Remote server to send the messages to.
         [Header("Remote server IP or hostname to log messages")]
@@ -45,7 +45,7 @@ namespace PapertrailFor7DTD.SDK {
         public static PapertrailSettings LoadSettings() {
             var settings = CreateInstance<PapertrailSettings>();
             try {
-                var x = XElement.Load(s_settingsPath);
+                var x = XElement.Load(SettingsPath);
                 settings.hostname = x.Element(HOSTNAME_KEY).Value;
                 if (string.IsNullOrEmpty(settings.hostname)) {
                     Log.Error($"[PAPERTRAIL] Unable to parse required value {HOSTNAME_KEY}");
@@ -89,7 +89,7 @@ namespace PapertrailFor7DTD.SDK {
                 x.Add(new XElement(FACILITY_KEY, facility));
                 x.Add(new XElement(LOG_STACK_TRACE_KEY, logStackTrace));
                 x.Add(new XElement(LOG_CLIENT_IP_ADDRESS_KEY, logClientIPAddress));
-                x.Save(s_settingsPath);
+                x.Save(SettingsPath);
             } catch (Exception e) {
                 Log.Error("[PAPERTRAIL] Unable to save papertrail settings file.");
                 Log.Exception(e);

@@ -24,7 +24,7 @@ namespace PapertrailFor7DTD.SDK {
         // Additional formatting for logging the client ip address
         private const string s_ipPrefixFormat = "ip=[{0}] {1}";
         // Singleton instance of the PapertrailLogger
-        private static PapertrailLogger Instance {
+        public static PapertrailLogger Instance {
             get {
                 if (s_instance == null) {
                     Initialize();
@@ -36,11 +36,11 @@ namespace PapertrailFor7DTD.SDK {
         private static PapertrailLogger s_instance;
 
         // Papertrail logging settings
-        private PapertrailSettings m_settings;
+        public PapertrailSettings Settings { get; private set; }
         // UDP client for sending messages
         private UdpClient m_udpClient = null;
         // Builds messages with minimal garbage allocations
-        private StringBuilder m_stringBuilder = new StringBuilder();
+        private readonly StringBuilder m_stringBuilder = new StringBuilder();
         // Name of the running application
         private string m_processName;
         // Platform the app is running on
@@ -50,7 +50,7 @@ namespace PapertrailFor7DTD.SDK {
         // Flag set when the client is connected and ready to being logging
         private bool m_isReady;
         // Log messages are queued up until the client is ready to log
-        private Queue<string> m_queuedMessages = new Queue<string>();
+        private readonly Queue<string> m_queuedMessages = new Queue<string>();
         // User set tag for log messages
         private string m_tag;
 
@@ -81,8 +81,8 @@ namespace PapertrailFor7DTD.SDK {
             }
             // Load settings
             m_isReady = false;
-            m_settings = PapertrailSettings.LoadSettings();
-            if (string.IsNullOrEmpty(m_settings.hostname)) {
+            Settings = PapertrailSettings.LoadSettings();
+            if (string.IsNullOrEmpty(Settings.hostname)) {
                 return;
             }
             IsEnabled = true;
@@ -97,10 +97,10 @@ namespace PapertrailFor7DTD.SDK {
                 .Select(ip => ip.Address.ToString())
                 .First();
 
-            if (!string.IsNullOrEmpty(m_settings.hostname) && m_settings.port > 0) {
+            if (!string.IsNullOrEmpty(Settings.hostname) && Settings.port > 0) {
                 try {
                     // Create the udp client
-                    m_udpClient = new UdpClient(m_settings.hostname, m_settings.port);
+                    m_udpClient = new UdpClient(Settings.hostname, Settings.port);
                     // Hook into Unity's logging system
                     Application.logMessageReceivedThreaded += Application_LogMessageReceived;
                     // Begin looking for a connection
@@ -186,18 +186,20 @@ namespace PapertrailFor7DTD.SDK {
                     break;
             }
             try {
-                if (severity > m_settings.minimumLoggingLevel)
+                if (severity > Settings.minimumLoggingLevel) {
                     return;
+                }
+
                 if (!string.IsNullOrEmpty(m_tag)) {
                     // Log the message with the set tag
-                    if (m_settings.logStackTrace) {
+                    if (Settings.logStackTrace) {
                         Log(severity, string.Format(s_taggedLogFormat, m_tag, condition, stackTrace));
                     } else {
                         Log(severity, string.Format(s_taggedNoStack, m_tag, condition));
                     }
                 } else {
                     // Log the message without a tag
-                    if (m_settings.logStackTrace) {
+                    if (Settings.logStackTrace) {
                         Log(severity, string.Format(s_logFormat, condition, stackTrace));
                     } else {
                         Log(severity, string.Format(s_logFormatNoStack, condition));
@@ -212,7 +214,10 @@ namespace PapertrailFor7DTD.SDK {
         /// Begin sending a message asynchrously on the UDP client
         /// </summary>
         private void BeginSend(string msg) {
-            if (string.IsNullOrEmpty(msg)) return;
+            if (string.IsNullOrEmpty(msg)) {
+                return;
+            }
+
             if (!m_isReady) {
                 // Enqueue messages if the logger isn't fully initialized
                 m_queuedMessages.Enqueue(msg);
@@ -247,14 +252,14 @@ namespace PapertrailFor7DTD.SDK {
         /// Internal instance logging of a message
         /// </summary>
         private void LogInternal(string msg) {
-            Log(m_settings.facility, Severity.Debug, msg);
+            Log(Settings.facility, Severity.Debug, msg);
         }
 
         /// <summary>
         /// Internal instance logging of a message
         /// </summary>
         private void LogInternal(Severity severity, string msg) {
-            Log(m_settings.facility, severity, msg);
+            Log(Settings.facility, severity, msg);
         }
 
         /// <summary>
@@ -262,8 +267,9 @@ namespace PapertrailFor7DTD.SDK {
         /// </summary>
         private void LogInternal(Facility facility, Severity severity, string msg) {
             // Early out if the client's logging level is lower than the log message
-            if (string.IsNullOrEmpty(msg) || severity > m_settings.minimumLoggingLevel || m_udpClient == null)
+            if (string.IsNullOrEmpty(msg) || severity > Settings.minimumLoggingLevel || m_udpClient == null) {
                 return;
+            }
             // Calculate the message severity (facility * 8 + severity)
             int severityValue = ((int)facility) * 8 + (int)severity;
             string message = string.Empty;
@@ -282,9 +288,11 @@ namespace PapertrailFor7DTD.SDK {
                 m_stringBuilder.Append(Rfc3339DateTime.ToString(DateTime.UtcNow));
                 m_stringBuilder.Append(' ');
                 // The application that is logging
-                string systemName = m_settings.systemName;
-                if (string.IsNullOrEmpty(systemName))
+                string systemName = Settings.systemName;
+                if (string.IsNullOrEmpty(systemName)) {
                     systemName = "unity-client";
+                }
+
                 m_stringBuilder.Append(systemName);
                 m_stringBuilder.Append(' ');
                 // Process name that is logging
@@ -294,7 +302,7 @@ namespace PapertrailFor7DTD.SDK {
                 m_stringBuilder.Append(m_platform);
                 m_stringBuilder.Append(' ');
                 // The log message with the client IP
-                if (m_settings.logClientIPAddress) {
+                if (Settings.logClientIPAddress) {
                     m_stringBuilder.Append(string.Format(s_ipPrefixFormat, m_localIp, msg));
                 } else {
                     m_stringBuilder.Append(msg);
