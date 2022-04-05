@@ -3,7 +3,7 @@
         <Name value="Papertrail for 7 Days to Die" />
         <Description value="Allow seamless integration between 7DTD’s logging system and Papertrail" />
         <Author value="Jonathan Robertson" />
-        <Version value="0.1.0" />
+        <Version value="0.1.1" />
         <Website value="https://github.com/jonathan-robertson/papertrail-for-7dtd" />
     </ModInfo>
 </xml>
