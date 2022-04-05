@@ -1,16 +1,28 @@
-﻿using UnityEngine;
+﻿using System;
+using System.IO;
+using System.Xml.Linq;
+using UnityEngine;
 
 namespace PapertrailFor7DTD.SDK {
     public class PapertrailSettings : ScriptableObject {
+        private const string ROOT_KEY = "settings";
+        private const string HOSTNAME_KEY = "hostname";
+        private const string PORT_KEY = "port";
+        private const string SYSTEM_NAME_KEY = "system-name";
+        private const string MINIMUM_LOGGING_LEVEL_KEY = "minimum-logging-level";
+        private const string FACILITY_KEY = "facility";
+        private const string LOG_STACK_TRACE_KEY = "log-stack-trace";
+        private const string LOG_CLIENT_IP_ADDRESS_KEY = "log-client-ip-address";
+
         // Resources path where the logger settings are stored.
-        private const string s_settingsPath = "PapertrailSettings";
+        private static readonly string s_settingsPath = Path.Combine(GameIO.GetSaveGameDir(), "papertrail.xml");
 
         // Remote server to send the messages to.
         [Header("Remote server IP or hostname to log messages")]
-        public string hostname = "localhost";
+        public string hostname = string.Empty;
         // Remote server port.
         [Header("Remote server port")]
-        public int port = 514;
+        public int port = -1;
         // Default facility tag to use for logs.
         [Header("System name to appear in the Dashboard")]
         public string systemName = string.Empty;
@@ -25,13 +37,64 @@ namespace PapertrailFor7DTD.SDK {
         public bool logStackTrace = true;
         // Minimum severity of logs to send to the server.
         [Header("Append the client's IP address")]
-        public bool logClientIPAdress = true;
+        public bool logClientIPAddress = true;
 
         /// <summary>
         /// Loads the default settings file
         /// </summary>
         public static PapertrailSettings LoadSettings() {
-            return Resources.Load<PapertrailSettings>(s_settingsPath);
+            var settings = CreateInstance<PapertrailSettings>();
+            try {
+                var x = XElement.Load(s_settingsPath);
+                settings.hostname = x.Element(HOSTNAME_KEY).Value;
+                if (string.IsNullOrEmpty(settings.hostname)) {
+                    Log.Error($"[PAPERTRAIL] Unable to parse required value {HOSTNAME_KEY}");
+                }
+                if (!int.TryParse(x.Element(PORT_KEY).Value, out settings.port)) {
+                    Log.Error($"[PAPERTRAIL] Unable to parse required value {PORT_KEY}");
+                }
+
+                settings.systemName = x.Element(SYSTEM_NAME_KEY).Value;
+                if (!Enum.TryParse(x.Element(MINIMUM_LOGGING_LEVEL_KEY).Value, out settings.minimumLoggingLevel)) {
+                    Log.Warning($"[PAPERTRAIL] {MINIMUM_LOGGING_LEVEL_KEY} missing or cannot be parsed - using default value of {settings.minimumLoggingLevel}");
+                }
+                if (!Enum.TryParse(x.Element(FACILITY_KEY).Value, out settings.facility)) {
+                    Log.Warning($"[PAPERTRAIL] {FACILITY_KEY} missing or cannot be parsed - using default value of {settings.facility}");
+                }
+                if (!bool.TryParse(x.Element(LOG_STACK_TRACE_KEY).Value, out settings.logStackTrace)) {
+                    Log.Warning($"[PAPERTRAIL] {LOG_STACK_TRACE_KEY} missing or cannot be parsed - using default value of {settings.logStackTrace}");
+                }
+                if (!bool.TryParse(x.Element(LOG_CLIENT_IP_ADDRESS_KEY).Value, out settings.logClientIPAddress)) {
+                    Log.Warning($"[PAPERTRAIL] {LOG_CLIENT_IP_ADDRESS_KEY} missing or cannot be parsed - using default value of {settings.logClientIPAddress}");
+                }
+                return settings;
+            } catch (FileNotFoundException) {
+                Log.Warning("[PAPERTRAIL] Settings file not present; creating a new one.");
+                settings.SaveSettings();
+                return settings;
+            } catch (Exception e) {
+                Log.Error("[PAPERTRAIL] Unexpected error while trying to load settings file.");
+                Log.Exception(e);
+                throw e;
+            }
+        }
+
+        public void SaveSettings() {
+            try {
+                var x = new XElement(ROOT_KEY);
+                x.Add(new XElement(HOSTNAME_KEY, hostname));
+                x.Add(new XElement(PORT_KEY, port));
+                x.Add(new XElement(SYSTEM_NAME_KEY, systemName));
+                x.Add(new XElement(MINIMUM_LOGGING_LEVEL_KEY, minimumLoggingLevel));
+                x.Add(new XElement(FACILITY_KEY, facility));
+                x.Add(new XElement(LOG_STACK_TRACE_KEY, logStackTrace));
+                x.Add(new XElement(LOG_CLIENT_IP_ADDRESS_KEY, logClientIPAddress));
+                x.Save(s_settingsPath);
+            } catch (Exception e) {
+                Log.Error("[PAPERTRAIL] Unable to save papertrail settings file.");
+                Log.Exception(e);
+                throw e;
+            }
         }
 
         /// <summary>

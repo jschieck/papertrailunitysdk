@@ -8,9 +8,16 @@ using UnityEngine;
 
 namespace PapertrailFor7DTD {
     internal class API : IModApi {
+
         public void InitMod(Mod _modInstance) {
             ModEvents.GameAwake.RegisterHandler(PapertrailLogger.Initialize);
-            ModEvents.GameStartDone.RegisterHandler(() => Log.LogCallbacks += LogToPapertrail);
+            ModEvents.GameStartDone.RegisterHandler(() => {
+                if (PapertrailLogger.IsEnabled) {
+                    Log.LogCallbacks += LogToPapertrail;
+                } else {
+                    Log.Warning("[PAPERTRAIL] Papertrail Logger is not configured, so it was not hooked into the game's logging system.");
+                }
+            });
         }
 
         private static void LogToPapertrail(string _msg, string _trace, LogType _type) {

@@ -54,6 +54,8 @@ namespace PapertrailFor7DTD.SDK {
         // User set tag for log messages
         private string m_tag;
 
+        public static bool IsEnabled { get; private set; } = false;
+
         /// <summary>
         /// Initializes the logging instance as soon as the app starts
         /// </summary>
@@ -80,6 +82,11 @@ namespace PapertrailFor7DTD.SDK {
             // Load settings
             m_isReady = false;
             m_settings = PapertrailSettings.LoadSettings();
+            if (string.IsNullOrEmpty(m_settings.hostname)) {
+                return;
+            }
+            IsEnabled = true;
+
             // Store app information
             m_processName = Application.identifier.Replace(" ", string.Empty);
             m_platform = Application.platform.ToString().ToLowerInvariant();
@@ -287,7 +294,7 @@ namespace PapertrailFor7DTD.SDK {
                 m_stringBuilder.Append(m_platform);
                 m_stringBuilder.Append(' ');
                 // The log message with the client IP
-                if (m_settings.logClientIPAdress) {
+                if (m_settings.logClientIPAddress) {
                     m_stringBuilder.Append(string.Format(s_ipPrefixFormat, m_localIp, msg));
                 } else {
                     m_stringBuilder.Append(msg);
