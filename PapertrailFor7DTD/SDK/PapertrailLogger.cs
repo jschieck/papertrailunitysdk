@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using UnityEngine;
@@ -81,7 +83,12 @@ namespace PapertrailFor7DTD.SDK {
             // Store app information
             m_processName = Application.identifier.Replace(" ", string.Empty);
             m_platform = Application.platform.ToString().ToLowerInvariant();
-            m_localIp = Network.player.ipAddress;
+            m_localIp = NetworkInterface.GetAllNetworkInterfaces()
+                .Where(ni => ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+                .SelectMany(ni => ni.GetIPProperties().UnicastAddresses.ToList())
+                .Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                .Select(ip => ip.Address.ToString())
+                .First();
 
             if (!string.IsNullOrEmpty(m_settings.hostname) && m_settings.port > 0) {
                 try {
