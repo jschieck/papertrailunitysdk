@@ -54,7 +54,7 @@ namespace PapertrailFor7DTD.SDK {
         // User set tag for log messages
         private string m_tag;
 
-        public static bool IsEnabled { get; private set; } = false;
+        public static bool IsEnabled { get; set; } = false;
 
         /// <summary>
         /// Initializes the logging instance as soon as the app starts
@@ -73,7 +73,7 @@ namespace PapertrailFor7DTD.SDK {
         /// <summary>
         /// Called when the Instance is created. Gathers application information and creates the UDP client
         /// </summary>
-        private void Awake() {
+        internal void Awake() {
             // Ensure this is the only instance
             if (s_instance != null && s_instance != this) {
                 Destroy(this);
@@ -290,7 +290,7 @@ namespace PapertrailFor7DTD.SDK {
                 // The application that is logging
                 string systemName = Settings.systemName;
                 if (string.IsNullOrEmpty(systemName)) {
-                    systemName = "unity-client";
+                    systemName = "7dtd-server";
                 }
 
                 m_stringBuilder.Append(systemName);
