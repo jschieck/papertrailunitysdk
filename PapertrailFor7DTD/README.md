@@ -1,10 +1,14 @@
-# Papertrail for 7 Days to Die
+﻿# Papertrail for 7 Days to Die
 
 7 Days to Die Modlet: Allow seamless integration between 7DTD’s logging system and Papertrail. All logging that already exists in 7 Days to Die will be automatically forwarded to Papertrail for recording and viewing to help track down bugs, monitor player activity, or provide support to users.
 
-## Setup
+## Papertrail Account Setup
 
-See the [project readme](PapertrailFor7DTD/README.md), which will also be included within the modlet download.
+To get started, [sign up for a free account](https://papertrailapp.com/signup?plan=free) to get access to an unlimited number of apps, and some free logging each month.
+
+## Modlet Setup
+
+TODO
 
 ## Credits
 
