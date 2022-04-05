@@ -58,7 +58,7 @@ namespace PapertrailFor7DTD.SDK {
         /// Initializes the logging instance as soon as the app starts
         /// </summary>
         [RuntimeInitializeOnLoadMethod]
-        private static void Initialize() {
+        internal static void Initialize() {
             if (s_instance == null) {
                 s_instance = FindObjectOfType<PapertrailLogger>();
                 if (s_instance == null) {
