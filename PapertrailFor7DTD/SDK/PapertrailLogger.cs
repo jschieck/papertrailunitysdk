@@ -9,21 +9,33 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 namespace PapertrailFor7DTD.SDK {
-    /// <summary>
-    /// Fowards Unity logs to Papertrail's monitoring servers using the syslog protocol.
-    /// </summary>
+    /**
+     * <summary>Fowards Unity logs to Papertrail's monitoring servers using the syslog protocol.</summary>
+     */
     public class PapertrailLogger : MonoBehaviour {
-        // Format for messages that use a tag
+        /**
+         * <summary>Format for messages that use a tag</summary>
+         */
         private const string s_taggedNoStack = "tag=[{0}] message=[{1}]";
-        // Format for messages that use a tag
+        /** 
+         * <summary>Format for messages that use a tag</summary>
+         */
         private const string s_logFormatNoStack = "message=[{0}]";
-        // Format for messages that use a tag
+        /** 
+         * <summary>Format for messages that use a tag</summary>
+         */
         private const string s_taggedLogFormat = "tag=[{0}] message=[{1}] stacktrace=[{2}]";
-        // Format for messsage without a tag
+        /** 
+         * <summary>Format for messsage without a tag</summary>
+         */
         private const string s_logFormat = "message=[{0}] stacktrace=[{1}]";
-        // Additional formatting for logging the client ip address
+        /** 
+         * <summary>Additional formatting for logging the client ip address</summary>
+         */
         private const string s_ipPrefixFormat = "ip=[{0}] {1}";
-        // Singleton instance of the PapertrailLogger
+        /** 
+         * <summary>Singleton instance of the PapertrailLogger</summary>
+         */
         public static PapertrailLogger Instance {
             get {
                 if (s_instance == null) {
@@ -32,33 +44,53 @@ namespace PapertrailFor7DTD.SDK {
                 return s_instance;
             }
         }
-        // Private singleton instnace storage
+        /**
+         * <summary>Private singleton instnace storage</summary>
+         */
         private static PapertrailLogger s_instance;
 
-        // Papertrail logging settings
+        /**
+         * <summary>Papertrail logging settings</summary>
+         */
         public PapertrailSettings Settings { get; private set; }
-        // UDP client for sending messages
+        /**
+         * <summary>UDP client for sending messages</summary>
+         */
         private UdpClient m_udpClient = null;
-        // Builds messages with minimal garbage allocations
+        /**
+         * <summary>Builds messages with minimal garbage allocations</summary>
+         */
         private readonly StringBuilder m_stringBuilder = new StringBuilder();
-        // Name of the running application
+        /**
+         * <summary>Name of the running application</summary>
+         */
         private string m_processName;
-        // Platform the app is running on
+        /**
+         * <summary>Platform the app is running on</summary>
+         */
         private string m_platform;
-        // The clients external IP address
+        /**
+         * <summary>The clients external IP address</summary>
+         */
         private string m_localIp;
-        // Flag set when the client is connected and ready to being logging
+        /**
+         * <summary>Flag set when the client is connected and ready to being logging</summary>
+         */
         private bool m_isReady;
-        // Log messages are queued up until the client is ready to log
+        /**
+         * <summary>Log messages are queued up until the client is ready to log</summary>
+         */
         private readonly Queue<string> m_queuedMessages = new Queue<string>();
-        // User set tag for log messages
+        /**
+         * <summary>User set tag for log messages</summary>
+         */
         private string m_tag;
 
         public static bool IsEnabled { get; set; } = false;
 
-        /// <summary>
-        /// Initializes the logging instance as soon as the app starts
-        /// </summary>
+        /**
+         * <summary>Initializes the logging instance as soon as the app starts</summary>
+         */
         [RuntimeInitializeOnLoadMethod]
         internal static void Initialize() {
             if (s_instance == null) {
@@ -70,9 +102,9 @@ namespace PapertrailFor7DTD.SDK {
             }
         }
 
-        /// <summary>
-        /// Called when the Instance is created. Gathers application information and creates the UDP client
-        /// </summary>
+        /**
+         * <summary>Called when the Instance is created. Gathers application information and creates the UDP client</summary>
+         */
         internal void Awake() {
             // Ensure this is the only instance
             if (s_instance != null && s_instance != this) {
@@ -114,9 +146,9 @@ namespace PapertrailFor7DTD.SDK {
             }
         }
 
-        /// <summary>
-        /// Called when the instance is destroyed and closes the client
-        /// </summary>
+        /**
+         * <summary>Called when the instance is destroyed and closes the client</summary>
+         */
         private void OnDestroy() {
             // Unhook from Unity's logging system
             Application.logMessageReceivedThreaded -= Application_LogMessageReceived;
@@ -124,9 +156,9 @@ namespace PapertrailFor7DTD.SDK {
             Close();
         }
 
-        /// <summary>
-        /// Closes the connected UDP client
-        /// </summary>
+        /**
+         * <summary>Closes the connected UDP client</summary>
+         */
         private void Close() {
             // Close the UDP client
             if (m_udpClient != null) {
@@ -135,10 +167,9 @@ namespace PapertrailFor7DTD.SDK {
             }
         }
 
-        /// <summary>
-        /// Retrieves the external IP address of the client to append to log messages.
-        /// Waits until an internet connection can be established before starting logs.
-        /// </summary>
+        /**
+         * <summary>Retrieves the external IP address of the client to append to log messages.<br />Waits until an internet connection can be established before starting logs.</summary>
+         */
         private IEnumerator GetExternalIP() {
             // Wait for an internet connection
             while (Application.internetReachability == NetworkReachability.NotReachable) {
@@ -164,9 +195,9 @@ namespace PapertrailFor7DTD.SDK {
             }
         }
 
-        /// <summary>
-        /// Callback for the Unity logging system. Happens off of the main thread.
-        /// </summary>
+        /**
+         * <summary>Callback for the Unity logging system. Happens off of the main thread</summary>
+         */
         private void Application_LogMessageReceived(string condition, string stackTrace, LogType type) {
             // Set the severity type based on the Unity's log level
             Severity severity = Severity.Debug;
@@ -210,9 +241,9 @@ namespace PapertrailFor7DTD.SDK {
             }
         }
 
-        /// <summary>
-        /// Begin sending a message asynchrously on the UDP client
-        /// </summary>
+        /**
+         * <summary>Begin sending a message asynchrously on the UDP client</summary>
+         */
         private void BeginSend(string msg) {
             if (string.IsNullOrEmpty(msg)) {
                 return;
@@ -235,9 +266,9 @@ namespace PapertrailFor7DTD.SDK {
             }
         }
 
-        /// <summary>
-        /// Callback to finish sending the UDP message
-        /// </summary>
+        /**
+         * <summary>Callback to finish sending the UDP message</summary>
+         */
         private void OnEndSend(IAsyncResult result) {
             try {
                 // Complete the UDP send
@@ -248,23 +279,23 @@ namespace PapertrailFor7DTD.SDK {
             }
         }
 
-        /// <summary>
-        /// Internal instance logging of a message
-        /// </summary>
+        /**
+         * <summary>Internal instance logging of a message</summary>
+         */
         private void LogInternal(string msg) {
             Log(Settings.facility, Severity.Debug, msg);
         }
 
-        /// <summary>
-        /// Internal instance logging of a message
-        /// </summary>
+        /**
+         * <summary>Internal instance logging of a message</summary>
+         */
         private void LogInternal(Severity severity, string msg) {
             Log(Settings.facility, severity, msg);
         }
 
-        /// <summary>
-        /// Internal instance logging of a message
-        /// </summary>
+        /**
+         * <summary>Internal instance logging of a message</summary>
+         */
         private void LogInternal(Facility facility, Severity severity, string msg) {
             // Early out if the client's logging level is lower than the log message
             if (string.IsNullOrEmpty(msg) || severity > Settings.minimumLoggingLevel || m_udpClient == null) {
@@ -313,37 +344,37 @@ namespace PapertrailFor7DTD.SDK {
             BeginSend(message);
         }
 
-        /// <summary>
-        /// Set a user tag to be appended to all outgoing logs
-        /// </summary>
-        /// <param name="tag">Tag that will appended to all outgoing messages</param>
+        /**
+         * <summary>Set a user tag to be appended to all outgoing logs</summary>
+         * <param name="tag">Tag that will appended to all outgoing messages</param>
+         */
         public static void SetTag(string tag) {
             Instance.m_tag = tag;
         }
 
-        /// <summary>
-        /// Log a message to the remote server
-        /// </summary>
-        /// <param name="msg">Message to be logged</param>
+        /**
+         * <summary>Log a message to the remote server</summary>
+         * <param name="msg">Message to be logged</param>
+         */
         public static void Log(string msg) {
             Instance.LogInternal(Severity.Debug, msg);
         }
 
-        /// <summary>
-        /// Log a message to the remote server
-        /// </summary>
-        /// <param name="severity">Severity level of the message</param>
-        /// <param name="msg">Message to be logged</param>
+        /**
+         * <summary>Log a message to the remote server</summary>
+         * <param name="severity">Severity level of the message</param>
+         * <param name="msg">Message to be logged</param>
+         */
         public static void Log(Severity severity, string msg) {
             Instance.LogInternal(severity, msg);
         }
 
-        /// <summary>
-        /// Log a message to the remote server
-        /// </summary>
-        /// <param name="facility">The sending facility of the message. See syslog protocol for more information.</param>
-        /// <param name="severity">Severity level of the message</param>
-        /// <param name="msg">Message to be logged</param>
+        /**
+         * <summary>Log a message to the remote server</summary>
+         * <param name="facility">The sending facility of the message. See syslog protocol for more information.</param>
+         * <param name="severity">Severity level of the message</param>
+         * <param name="msg">Message to be logged</param>
+         */
         public static void Log(Facility facility, Severity severity, string msg) {
             Instance.LogInternal(facility, severity, msg);
         }

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Linq;
-using UnityEngine;
 
 namespace PapertrailFor7DTD.SDK {
-    public class PapertrailSettings : ScriptableObject {
+    public class PapertrailSettings {
         private const string ROOT_KEY = "settings";
         private const string HOSTNAME_KEY = "hostname";
         private const string PORT_KEY = "port";
@@ -14,36 +13,45 @@ namespace PapertrailFor7DTD.SDK {
         private const string LOG_STACK_TRACE_KEY = "log-stack-trace";
         private const string LOG_CLIENT_IP_ADDRESS_KEY = "log-client-ip-address";
 
-        // Resources path where the logger settings are stored.
+        /**
+         * <summary>Resources path where the logger settings are stored.</summary>
+         */
         public static string SettingsPath { get; private set; } = Path.Combine(GameIO.GetSaveGameDir(), "papertrail.xml");
 
-        // Remote server to send the messages to.
-        [Header("Remote server IP or hostname to log messages")]
+        /**
+         * <summary>Remote server to send the messages to.</summary>
+         */
         public string hostname = string.Empty;
-        // Remote server port.
-        [Header("Remote server port")]
+        /**
+         * <summary>Remote server port.</summary>
+         */
         public int port = -1;
-        // Default facility tag to use for logs.
-        [Header("System name to appear in the Dashboard")]
+        /**
+         * <summary>Default facility tag to use for logs.</summary>
+         */
         public string systemName = string.Empty;
-        // Minimum severity of logs to send to the server.
-        [Header("Minimum severity of logs to send to the server")]
+        /**
+         * <summary>Minimum severity of logs to send to the server.</summary>
+         */
         public Severity minimumLoggingLevel = Severity.Debug;
-        // Default facility tag to use for logs.
-        [Header("Default facility tag to use for logs")]
+        /**
+         * <summary>Default facility tag to use for logs.</summary>
+         */
         public Facility facility = Facility.local7;
-        // Minimum severity of logs to send to the server.
-        [Header("Append the log stack trace")]
+        /**
+         * <summary>Minimum severity of logs to send to the server.</summary>
+         */
         public bool logStackTrace = true;
-        // Minimum severity of logs to send to the server.
-        [Header("Append the client's IP address")]
+        /**
+         * <summary>Minimum severity of logs to send to the server.</summary>
+         */
         public bool logClientIPAddress = true;
 
-        /// <summary>
-        /// Loads the default settings file
-        /// </summary>
+        /**
+         * <summary>Loads the default settings file.</summary>
+         */
         public static PapertrailSettings LoadSettings() {
-            var settings = CreateInstance<PapertrailSettings>();
+            var settings = new PapertrailSettings();
             try {
                 var x = XElement.Load(SettingsPath);
                 settings.hostname = x.Element(HOSTNAME_KEY).Value;
@@ -79,6 +87,9 @@ namespace PapertrailFor7DTD.SDK {
             }
         }
 
+        /**
+         * <summary>Save current settings to file.</summary>
+         */
         public void SaveSettings() {
             try {
                 var x = new XElement(ROOT_KEY);
@@ -97,70 +108,11 @@ namespace PapertrailFor7DTD.SDK {
             }
         }
 
-        /// <summary>
-        /// Ensures all settings are correct
-        /// </summary>
+        /**
+         * <summary>Ensures all settings are correct.</summary>
+         */
         private void OnValidate() {
             systemName = systemName.Replace('.', '-');
         }
-
-#if UNITY_EDITOR
-        /// <summary>
-        /// Ensures that a settings file exists in the project.
-        /// </summary>
-        [UnityEditor.InitializeOnLoadMethod]
-        private static void EnsureSettingsExist()
-        {
-            PapertrailSettings settings = LoadSettings();
-            if (settings == null)
-            {
-                var folders = System.IO.Directory.GetDirectories(Application.dataPath, "Papertrail");
-                string createPath = string.Empty;
-                if (folders.Length == 0)
-                {
-                    createPath = "Assets/Resources/" + s_settingsPath + ".asset";
-                }
-                else
-                {
-                    createPath = GetRelativeProjectPath(folders[0]);
-                    createPath += "Resources/" + s_settingsPath + ".asset";
-                }
-                string[] split = createPath.Split('/');
-                string currentDepth = string.Empty;
-                for (int j = 0; j < split.Length - 1; j++)
-                {
-                    string parentFolder = currentDepth;
-                    if (j > 0)
-                        currentDepth += '/';
-                    currentDepth += split[j];
-                    if (!UnityEditor.AssetDatabase.IsValidFolder(currentDepth))
-                        UnityEditor.AssetDatabase.CreateFolder(parentFolder, split[j]);
-                }
-                settings = CreateInstance<PapertrailSettings>();
-                UnityEditor.AssetDatabase.CreateAsset(settings, createPath);
-            }
-            if (string.IsNullOrEmpty(settings.systemName))
-            {
-                settings.systemName = Application.identifier;
-                UnityEditor.EditorUtility.SetDirty(settings);
-            }
-        }
-
-        /// <summary>
-        /// Gets the relative path of an asset to the project Assets folder
-        /// </summary>
-        private static string GetRelativeProjectPath(string absolutePath)
-        {
-            string[] split = absolutePath.Replace('\\', '/').Split('/');
-            string path = string.Empty;
-            for (int i = 0; i < split.Length; i++)
-            {
-                if (split[i] != "Assets" && path.Length == 0)
-                    continue;
-                path += split[i] + '/';
-            }
-            return path;
-        }
-#endif
     }
 }
