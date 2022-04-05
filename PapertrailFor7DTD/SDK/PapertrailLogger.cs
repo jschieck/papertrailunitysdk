@@ -141,7 +141,7 @@ namespace PapertrailFor7DTD.SDK {
                 // Find the client's external IP address
                 UnityWebRequest webRequest = UnityWebRequest.Get("https://api.ipify.org?format=text");
                 yield return webRequest.Send();
-                if (!webRequest.isError) {
+                if (webRequest.result != UnityWebRequest.Result.ConnectionError) {
                     m_localIp = webRequest.downloadHandler.text;
                     break;
                 }
